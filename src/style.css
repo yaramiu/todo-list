@@ -1,0 +1,57 @@
+body, .project-title, .todos-title {
+    margin: 0;
+}
+
+#content {
+    display: flex;
+}
+
+.sidebar {
+    background-color: lightgray;
+    width: 25vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.main {
+    width: 75vw;
+    height: 100vh;
+}
+
+.project-title, .todos-title {
+    text-align: center;
+    padding: 2vw 0 0 0;
+}
+
+.project-title-input, .project-input-submit {
+    height: 3vh;
+    margin-bottom: 2vh;
+    line-height: 1;
+}
+
+.project-title-input {
+    width: 15vw;
+}
+
+.project-input-submit {
+    justify-self: center;
+    align-self: center;
+    background-color: blue;
+    color: white;
+}
+
+.new-project {
+    align-self: center;
+    justify-self: center;
+    display: flex;
+    column-gap: 1vw;
+}
+
+.create-project {
+    height: 6vh;
+    background-color: gray;
+    font-size: 1rem;
+    border-radius: 6px;
+}
