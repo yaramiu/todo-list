@@ -1,4 +1,8 @@
-import { setupCreateProjectButton } from "./dom-manipulation";
+import {
+  updateProjectsDisplay,
+  setupCreateProjectButton,
+} from "./dom-manipulation.js";
+import { ProjectManager } from "./project.js";
 import "./style.css";
 
 const contentDiv = document.querySelector("#content");
@@ -8,16 +12,17 @@ function initializePage() {
   sidebarDiv.classList.add("sidebar");
 
   const projectsHeader = document.createElement("h1");
-  projectsHeader.classList.add("project-title");
+  projectsHeader.classList.add("project-main-title");
   projectsHeader.textContent = "Projects";
   sidebarDiv.appendChild(projectsHeader);
 
   const projectsDiv = document.createElement("div");
   projectsDiv.classList.add("projects");
+  ProjectManager.createNewProject("Default", true);
+  updateProjectsDisplay(projectsDiv);
   sidebarDiv.appendChild(projectsDiv);
 
-  setupCreateProjectButton(sidebarDiv);
-
+  setupCreateProjectButton(projectsDiv, sidebarDiv);
   contentDiv.appendChild(sidebarDiv);
 
   const mainDiv = document.createElement("div");
