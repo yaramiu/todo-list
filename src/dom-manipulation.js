@@ -107,11 +107,21 @@ function displayProject(project, projectsDiv) {
   if (project.title !== "Default") {
     const projectDeleteButton = document.createElement("button");
     projectDeleteButton.classList.add("project-delete");
+    projectDeleteButton.type = "button";
     projectDeleteButton.textContent = "X";
+    setupProjectDeleteButton(projectDeleteButton, project, projectsDiv);
     projectDiv.appendChild(projectDeleteButton);
   } else {
     projectDiv.classList.add("default");
   }
 
   projectsDiv.appendChild(projectDiv);
+}
+
+function setupProjectDeleteButton(projectDeleteButton, project, projectsDiv) {
+  projectDeleteButton.addEventListener("click", () => {
+    ProjectManager.removeProject(project);
+    clearProjectsDisplay(projectsDiv);
+    updateProjectsDisplay(projectsDiv);
+  });
 }
