@@ -12,6 +12,7 @@ class Project {
 
 export class ProjectManager {
   static projects = [];
+  static currentActiveProject;
 
   static createNewProject(title, isDefault) {
     let project = new Project(title, isDefault);

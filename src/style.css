@@ -2,6 +2,7 @@
     --sidebar-background-color: lightgray;
     --delete-button-background-color: red;
     --delete-button-color: white;
+    --active-project-color: green;
 }
 
 body, .project-main-title, .todos-title, .project-title {
@@ -65,7 +66,8 @@ body, .project-main-title, .todos-title, .project-title {
     height: 6vh;
 }
 
-.notes {
+.notes,
+.green-notes {
     width: 4vw;
     height: 4vh;
     place-self: center;
@@ -103,4 +105,8 @@ body, .project-main-title, .todos-title, .project-title {
 
 .default {
     margin-right: 3vw;
+}
+
+.active .project-title {
+    color: var(--active-project-color);
 }

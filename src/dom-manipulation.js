@@ -1,6 +1,7 @@
 import { ProjectManager } from "./project";
 import { hitProjectLimit, isInputValid } from "./validation";
 import notesSvg from "./images/note-multiple.svg";
+import greenNotesSvg from "./images/note-multiple-green.svg";
 
 export function setupCreateProjectButton(projectsDiv, sidebarDiv) {
   const createProjectButton = document.createElement("button");
@@ -102,6 +103,7 @@ function displayProject(project, projectsDiv) {
   const projectTitleButton = document.createElement("button");
   projectTitleButton.classList.add("project-title");
   projectTitleButton.textContent = project.title;
+  setupProjectTitleButton(projectTitleButton, project, projectDiv, projectsDiv);
   projectDiv.appendChild(projectTitleButton);
 
   if (project.title !== "Default") {
@@ -123,5 +125,45 @@ function setupProjectDeleteButton(projectDeleteButton, project, projectsDiv) {
     ProjectManager.removeProject(project);
     clearProjectsDisplay(projectsDiv);
     updateProjectsDisplay(projectsDiv);
+  });
+}
+
+function setupProjectTitleButton(
+  projectTitleButton,
+  project,
+  projectDiv,
+  projectsDiv
+) {
+  projectTitleButton.addEventListener("click", () => {
+    ProjectManager.currentActiveProject = project;
+    projectDiv.classList.remove("inactive");
+    projectDiv.classList.add("active");
+    makeOtherProjectsInactive(projectDiv, projectsDiv);
+
+    const greenNotesImage = new Image();
+    greenNotesImage.classList.add("green-notes");
+    greenNotesImage.src = greenNotesSvg;
+    projectDiv.replaceChild(greenNotesImage, projectDiv.firstChild);
+    resetOtherNoteImages(projectDiv.firstChild, projectsDiv);
+  });
+}
+
+function makeOtherProjectsInactive(projectDiv, projectsDiv) {
+  projectsDiv.childNodes.forEach((node) => {
+    if (node !== projectDiv) {
+      node.classList.remove("active");
+      node.classList.add("inactive");
+    }
+  });
+}
+
+function resetOtherNoteImages(greenNotesImage, projectsDiv) {
+  projectsDiv.childNodes.forEach((node) => {
+    if (node.firstChild !== greenNotesImage) {
+      const notesImage = new Image();
+      notesImage.classList.add("notes");
+      notesImage.src = notesSvg;
+      node.firstChild.replaceWith(notesImage);
+    }
   });
 }
