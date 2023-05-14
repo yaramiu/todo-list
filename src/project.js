@@ -13,6 +13,7 @@ class Project {
 export class ProjectManager {
   static projects = [];
   static currentActiveProject;
+  static projectActivity = new Map();
 
   static createNewProject(title, isDefault) {
     let project = new Project(title, isDefault);

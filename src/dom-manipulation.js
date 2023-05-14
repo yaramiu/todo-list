@@ -113,8 +113,28 @@ function displayProject(project, projectsDiv) {
     projectDeleteButton.textContent = "X";
     setupProjectDeleteButton(projectDeleteButton, project, projectsDiv);
     projectDiv.appendChild(projectDeleteButton);
+
+    const activity = ProjectManager.projectActivity.get(project);
+    if (activity === undefined) {
+      projectDiv.classList.add("inactive");
+      ProjectManager.projectActivity.set(project, "inactive");
+    } else {
+      projectDiv.classList.add(activity);
+      if (activity === "active") {
+        makeNoteImageActive(projectDiv);
+      }
+    }
   } else {
     projectDiv.classList.add("default");
+    if (
+      ProjectManager.projects.length === 1 ||
+      ProjectManager.projectActivity.get(project) === undefined ||
+      ProjectManager.projectActivity.get(project) === "active" ||
+      !Array.from(ProjectManager.projectActivity.values()).includes("active")
+    ) {
+      makeProjectActive(project, projectDiv);
+      makeNoteImageActive(projectDiv);
+    }
   }
 
   projectsDiv.appendChild(projectDiv);
@@ -123,6 +143,7 @@ function displayProject(project, projectsDiv) {
 function setupProjectDeleteButton(projectDeleteButton, project, projectsDiv) {
   projectDeleteButton.addEventListener("click", () => {
     ProjectManager.removeProject(project);
+    ProjectManager.projectActivity.delete(project);
     clearProjectsDisplay(projectsDiv);
     updateProjectsDisplay(projectsDiv);
   });
@@ -135,29 +156,44 @@ function setupProjectTitleButton(
   projectsDiv
 ) {
   projectTitleButton.addEventListener("click", () => {
-    ProjectManager.currentActiveProject = project;
-    projectDiv.classList.remove("inactive");
-    projectDiv.classList.add("active");
-    makeOtherProjectsInactive(projectDiv, projectsDiv);
+    makeProjectActive(project, projectDiv);
+    makeOtherProjectsInactive(project, projectDiv, projectsDiv);
 
-    const greenNotesImage = new Image();
-    greenNotesImage.classList.add("green-notes");
-    greenNotesImage.src = greenNotesSvg;
-    projectDiv.replaceChild(greenNotesImage, projectDiv.firstChild);
-    resetOtherNoteImages(projectDiv.firstChild, projectsDiv);
+    makeNoteImageActive(projectDiv);
+    makeOtherNoteImagesInactive(projectDiv.firstChild, projectsDiv);
   });
 }
 
-function makeOtherProjectsInactive(projectDiv, projectsDiv) {
+function makeProjectActive(project, projectDiv) {
+  ProjectManager.currentActiveProject = project;
+  projectDiv.classList.remove("inactive");
+  projectDiv.classList.add("active");
+  ProjectManager.projectActivity.set(project, "active");
+}
+
+function makeNoteImageActive(projectDiv) {
+  const greenNotesImage = new Image();
+  greenNotesImage.classList.add("green-notes");
+  greenNotesImage.src = greenNotesSvg;
+  projectDiv.replaceChild(greenNotesImage, projectDiv.firstChild);
+}
+
+function makeOtherProjectsInactive(project, projectDiv, projectsDiv) {
+  let i = 0;
   projectsDiv.childNodes.forEach((node) => {
     if (node !== projectDiv) {
       node.classList.remove("active");
       node.classList.add("inactive");
+      ProjectManager.projectActivity.set(
+        ProjectManager.projects[i],
+        "inactive"
+      );
     }
+    i++;
   });
 }
 
-function resetOtherNoteImages(greenNotesImage, projectsDiv) {
+function makeOtherNoteImagesInactive(greenNotesImage, projectsDiv) {
   projectsDiv.childNodes.forEach((node) => {
     if (node.firstChild !== greenNotesImage) {
       const notesImage = new Image();
