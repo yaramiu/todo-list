@@ -161,7 +161,7 @@ function setupProjectTitleButton(
 ) {
   projectTitleButton.addEventListener("click", () => {
     makeProjectActive(project, projectDiv);
-    makeOtherProjectsInactive(project, projectDiv, projectsDiv);
+    makeOtherProjectsInactive(projectDiv, projectsDiv);
 
     makeNoteImageActive(projectDiv);
     makeOtherNoteImagesInactive(projectDiv.firstChild, projectsDiv);
@@ -182,7 +182,7 @@ function makeNoteImageActive(projectDiv) {
   projectDiv.replaceChild(greenNotesImage, projectDiv.firstChild);
 }
 
-function makeOtherProjectsInactive(project, projectDiv, projectsDiv) {
+function makeOtherProjectsInactive(projectDiv, projectsDiv) {
   let i = 0;
   projectsDiv.childNodes.forEach((node) => {
     if (node !== projectDiv) {
@@ -226,12 +226,14 @@ function displayTodo(todo, todosDiv, project) {
   const todoDiv = document.createElement("div");
   todoDiv.classList.add("todo");
 
-  const expandDescriptionButton = document.createElement("button");
-  expandDescriptionButton.classList.add("expand-description");
-  expandDescriptionButton.type = "button";
-  expandDescriptionButton.style = `background-image: url(${downChevronSvg})`;
-  setupExpandDescriptionButton(expandDescriptionButton, todo, todoDiv);
-  todoDiv.appendChild(expandDescriptionButton);
+  stylePriorityOnTodo(todo, todoDiv);
+
+  const expandTodoButton = document.createElement("button");
+  expandTodoButton.classList.add("expand-todo");
+  expandTodoButton.type = "button";
+  expandTodoButton.style = `background-image: url(${downChevronSvg})`;
+  setupExpandTodoButton(expandTodoButton, todo, todoDiv);
+  todoDiv.appendChild(expandTodoButton);
 
   const deleteTodoButton = document.createElement("button");
   deleteTodoButton.classList.add("delete-todo");
@@ -257,8 +259,8 @@ function displayTodo(todo, todosDiv, project) {
   todosDiv.appendChild(todoDiv);
 }
 
-function setupExpandDescriptionButton(expandDescriptionButton, todo, todoDiv) {
-  expandDescriptionButton.addEventListener("click", () => {
+function setupExpandTodoButton(expandTodoButton, todo, todoDiv) {
+  expandTodoButton.addEventListener("click", () => {
     const descriptionParagraph = document.createElement("p");
     descriptionParagraph.classList.add("description");
     descriptionParagraph.contentEditable = "true";
@@ -268,32 +270,47 @@ function setupExpandDescriptionButton(expandDescriptionButton, todo, todoDiv) {
     });
     descriptionParagraph.textContent = todo.description;
 
-    const shrinkDescriptionButton = document.createElement("button");
-    shrinkDescriptionButton.classList.add("shrink-description");
-    shrinkDescriptionButton.type = "button";
-    shrinkDescriptionButton.style = `background-image: url(${upChevronSvg})`;
-    expandDescriptionButton.replaceWith(shrinkDescriptionButton);
-    setupShrinkDescriptionButton(
-      expandDescriptionButton,
-      shrinkDescriptionButton,
+    const changePriorityButton = document.createElement("button");
+    changePriorityButton.classList.add("change-priority");
+    changePriorityButton.type = "button";
+    changePriorityButton.textContent = "Change Priority";
+    setupChangePriorityButton(changePriorityButton, todo, todoDiv);
+
+    const shrinkTodoButton = document.createElement("button");
+    shrinkTodoButton.classList.add("shrink-todo");
+    shrinkTodoButton.type = "button";
+    shrinkTodoButton.style = `background-image: url(${upChevronSvg})`;
+    expandTodoButton.replaceWith(shrinkTodoButton);
+    setupShrinkTodoButton(
+      expandTodoButton,
+      shrinkTodoButton,
       descriptionParagraph,
       todoDiv
     );
 
     todoDiv.appendChild(descriptionParagraph);
+    todoDiv.appendChild(changePriorityButton);
   });
 }
 
-function setupShrinkDescriptionButton(
-  expandDescriptionButton,
-  shrinkDescriptionButton,
+function setupShrinkTodoButton(
+  expandTodoButton,
+  shrinkTodoButton,
   descriptionParagraph,
   todoDiv
 ) {
-  shrinkDescriptionButton.addEventListener("click", () => {
-    shrinkDescriptionButton.replaceWith(expandDescriptionButton);
+  shrinkTodoButton.addEventListener("click", () => {
+    shrinkTodoButton.replaceWith(expandTodoButton);
 
     todoDiv.removeChild(descriptionParagraph);
+
+    Array.from(todoDiv.childNodes).forEach((node) => {
+      if (Array.from(node.classList).includes("change-priority")) {
+        todoDiv.removeChild(node);
+      } else if (Array.from(node.classList).includes("priorities")) {
+        todoDiv.removeChild(node);
+      }
+    });
   });
 }
 
@@ -324,4 +341,82 @@ export function setupCreateTodoButton(createTodoButton, todosDiv) {
     clearTodoDisplay(todosDiv);
     updateTodosDisplay(todosDiv);
   });
+}
+
+function setupChangePriorityButton(changePriorityButton, todo, todoDiv) {
+  changePriorityButton.addEventListener("click", () => {
+    todoDiv.removeChild(todoDiv.lastChild);
+
+    const prioritiesDiv = document.createElement("div");
+    prioritiesDiv.classList.add("priorities");
+
+    const lowPriorityButton = document.createElement("button");
+    lowPriorityButton.classList.add("low-priority");
+    lowPriorityButton.type = "button";
+    lowPriorityButton.textContent = "Low";
+    prioritiesDiv.appendChild(lowPriorityButton);
+
+    const mediumPriorityButton = document.createElement("button");
+    mediumPriorityButton.classList.add("medium-priority");
+    mediumPriorityButton.type = "button";
+    mediumPriorityButton.textContent = "Medium";
+    prioritiesDiv.appendChild(mediumPriorityButton);
+
+    const highPriorityButton = document.createElement("button");
+    highPriorityButton.classList.add("high-priority");
+    highPriorityButton.type = "button";
+    highPriorityButton.textContent = "High";
+    prioritiesDiv.appendChild(highPriorityButton);
+
+    setupPriorityButtons(todo, todoDiv, prioritiesDiv);
+
+    todoDiv.appendChild(prioritiesDiv);
+  });
+}
+
+function setupPriorityButtons(todo, todoDiv, prioritiesDiv) {
+  prioritiesDiv.childNodes.forEach((node) => {
+    if (Array.from(node.classList).includes("low-priority")) {
+      node.addEventListener("click", () => {
+        let todoToChangePriority =
+          ProjectManager.currentActiveProject.todos[
+            ProjectManager.currentActiveProject.todos.indexOf(todo)
+          ];
+        todoToChangePriority.priority = "low";
+        stylePriorityOnTodo(todo, todoDiv);
+      });
+    } else if (Array.from(node.classList).includes("medium-priority")) {
+      node.addEventListener("click", () => {
+        let todoToChangePriority =
+          ProjectManager.currentActiveProject.todos[
+            ProjectManager.currentActiveProject.todos.indexOf(todo)
+          ];
+        todoToChangePriority.priority = "medium";
+        stylePriorityOnTodo(todo, todoDiv);
+      });
+    } else if (Array.from(node.classList).includes("high-priority")) {
+      node.addEventListener("click", () => {
+        let todoToChangePriority =
+          ProjectManager.currentActiveProject.todos[
+            ProjectManager.currentActiveProject.todos.indexOf(todo)
+          ];
+        todoToChangePriority.priority = "high";
+        stylePriorityOnTodo(todo, todoDiv);
+      });
+    }
+  });
+}
+
+function stylePriorityOnTodo(todo, todoDiv) {
+  todoDiv.classList.remove("low-priority");
+  todoDiv.classList.remove("medium-priority");
+  todoDiv.classList.remove("high-priority");
+
+  if (todo.priority === "low") {
+    todoDiv.classList.add("low-priority");
+  } else if (todo.priority === "medium") {
+    todoDiv.classList.add("medium-priority");
+  } else if (todo.priority === "high") {
+    todoDiv.classList.add("high-priority");
+  }
 }

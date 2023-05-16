@@ -11,6 +11,10 @@
   --create-todo-button-background-color: blue;
   --create-todo-button-color: var(--delete-button-color);
   --button-border-radius: 6px;
+  --change-priority-button-background-color: #fff4a2;
+  --low-priority-button-background-color: var(--todo-background-color);
+  --medium-priority-button-background-color: #faac3f;
+  --high-priority-button-background-color: #ef4746;
 }
 
 html,
@@ -23,7 +27,7 @@ body,
 .projects-title,
 .todos-title,
 .project-title,
-.expand-description,
+.expand-todo,
 .delete-todo,
 .description {
   margin: 0;
@@ -188,13 +192,13 @@ body,
   left: 33vw;
 }
 
-.expand-description,
-.shrink-description {
+.expand-todo,
+.shrink-todo {
   position: relative;
   width: 1.675vw;
   height: 3vh;
   border: none;
-  background-color: var(--todo-background-color);
+  background-color: inherit;
 }
 
 .description {
@@ -215,4 +219,45 @@ body,
   background-color: var(--create-todo-button-background-color);
   color: var(--create-todo-button-color);
   border-radius: var(--button-border-radius);
+}
+
+.change-priority {
+  width: 12vw;
+  height: 4vh;
+  position: relative;
+  left: 12.5vw;
+  bottom: 5vh;
+  background-color: var(--change-priority-button-background-color);
+  border-radius: var(--button-border-radius);
+  font-weight: bold;
+  border-color: lightyellow;
+}
+
+.priorities {
+  display: flex;
+  gap: 2vw;
+  position: relative;
+  left: 4vw;
+  bottom: 5vh;
+}
+
+button.low-priority,
+button.medium-priority,
+button.high-priority {
+  border-radius: var(--button-border-radius);
+  font-weight: bold;
+  width: 8vw;
+  height: 4vh;
+}
+
+.low-priority {
+  background-color: var(--low-priority-button-background-color);
+}
+
+.medium-priority {
+  background-color: var(--medium-priority-button-background-color);
+}
+
+.high-priority {
+  background-color: var(--high-priority-button-background-color);
 }

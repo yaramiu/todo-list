@@ -7,9 +7,9 @@ import {
 import { ProjectManager } from "./project.js";
 import "./style.css";
 
-const contentDiv = document.querySelector("#content");
-
 function initializePage() {
+  const contentDiv = document.querySelector("#content");
+
   const sidebarDiv = document.createElement("div");
   sidebarDiv.classList.add("sidebar");
 
