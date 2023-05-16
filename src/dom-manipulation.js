@@ -150,6 +150,14 @@ function setupProjectDeleteButton(projectDeleteButton, project, projectsDiv) {
     ProjectManager.projectActivity.delete(project);
     clearProjectsDisplay(projectsDiv);
     updateProjectsDisplay(projectsDiv);
+
+    const TodosDiv = DomStorage.projectToTodosDivMap.get(project);
+    if (TodosDiv !== undefined) {
+      TodosDiv.childNodes.forEach((node) => {
+        ProjectManager.defaultProject.removeTodo(node);
+      });
+    }
+
     DomStorage.projectToTodosDivMap.delete(project);
     changeActiveProjectsTodosDisplay();
   });
@@ -216,7 +224,7 @@ export function updateTodosDisplay(todosDiv) {
   const currentProject = ProjectManager.currentActiveProject;
   for (let i = 0; i < currentProject.todos.length; i++) {
     const currentTodo = currentProject.todos[i];
-    displayTodo(currentTodo, todosDiv, currentProject);
+    displayTodo(currentTodo, todosDiv);
   }
 
   DomStorage.projectToTodosDivMap.set(currentProject, todosDiv);
@@ -228,7 +236,7 @@ function clearTodosDisplay(todosDiv) {
   }
 }
 
-function displayTodo(todo, todosDiv, project) {
+function displayTodo(todo, todosDiv) {
   const todoDiv = document.createElement("div");
   todoDiv.classList.add("todo");
 
@@ -245,7 +253,7 @@ function displayTodo(todo, todosDiv, project) {
   deleteTodoButton.classList.add("delete-todo");
   deleteTodoButton.type = "button";
   deleteTodoButton.textContent = "X";
-  setupDeleteTodoButton(deleteTodoButton, todo, todosDiv, project);
+  setupDeleteTodoButton(deleteTodoButton, todo, todosDiv);
   todoDiv.appendChild(deleteTodoButton);
 
   const todoTitleHeader = document.createElement("h3");
@@ -320,9 +328,9 @@ function setupShrinkTodoButton(
   });
 }
 
-function setupDeleteTodoButton(deleteTodoButton, todo, todosDiv, project) {
+function setupDeleteTodoButton(deleteTodoButton, todo, todosDiv) {
   deleteTodoButton.addEventListener("click", () => {
-    ProjectManager.removeTodoFromProject(project, todo);
+    ProjectManager.removeTodoFromProjects(todo);
     clearTodosDisplay(todosDiv);
     updateTodosDisplay(todosDiv);
   });
@@ -344,6 +352,9 @@ export function setupCreateTodoButton(createTodoButton, todosDiv) {
       ProjectManager.currentActiveProject,
       newTodo
     );
+    if (!ProjectManager.currentActiveProject.isDefault) {
+      ProjectManager.addTodoToProject(ProjectManager.defaultProject, newTodo);
+    }
     clearTodosDisplay(todosDiv);
     updateTodosDisplay(todosDiv);
   });

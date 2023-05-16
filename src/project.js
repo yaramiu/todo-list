@@ -43,8 +43,14 @@ export class ProjectManager {
     this.projects[projectIndex].addTodo(todo);
   }
 
-  static removeTodoFromProject(project, todo) {
-    const projectIndex = this.projects.indexOf(project);
-    this.projects[projectIndex].removeTodo(todo);
+  static removeTodoFromProjects(todoToRemove) {
+    this.projects.forEach((project) => {
+      project.todos.forEach((todo) => {
+        if (todo === todoToRemove) {
+          const todoIndex = project.todos.indexOf(todo);
+          project.todos.splice(todoIndex, 1);
+        }
+      });
+    });
   }
 }
