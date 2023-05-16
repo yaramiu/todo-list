@@ -1,7 +1,11 @@
 import { ProjectManager } from "./project";
 import { hitProjectLimit, isInputValid } from "./validation";
+import { Todo } from "./todo";
+import format from "date-fns/format";
 import notesSvg from "./images/note-multiple.svg";
 import greenNotesSvg from "./images/note-multiple-green.svg";
+import downChevronSvg from "./images/chevron-down.svg";
+import upChevronSvg from "./images/chevron-up.svg";
 
 export function setupCreateProjectButton(projectsDiv, sidebarDiv) {
   const createProjectButton = document.createElement("button");
@@ -201,5 +205,123 @@ function makeOtherNoteImagesInactive(greenNotesImage, projectsDiv) {
       notesImage.src = notesSvg;
       node.firstChild.replaceWith(notesImage);
     }
+  });
+}
+
+export function updateTodosDisplay(todosDiv) {
+  const currentProject = ProjectManager.currentActiveProject;
+  for (let i = 0; i < currentProject.todos.length; i++) {
+    const currentTodo = currentProject.todos[i];
+    displayTodo(currentTodo, todosDiv, currentProject);
+  }
+}
+
+function clearTodoDisplay(todosDiv) {
+  while (todosDiv.lastChild) {
+    todosDiv.removeChild(todosDiv.lastChild);
+  }
+}
+
+function displayTodo(todo, todosDiv, project) {
+  const todoDiv = document.createElement("div");
+  todoDiv.classList.add("todo");
+
+  const expandDescriptionButton = document.createElement("button");
+  expandDescriptionButton.classList.add("expand-description");
+  expandDescriptionButton.type = "button";
+  expandDescriptionButton.style = `background-image: url(${downChevronSvg})`;
+  setupExpandDescriptionButton(expandDescriptionButton, todo, todoDiv);
+  todoDiv.appendChild(expandDescriptionButton);
+
+  const deleteTodoButton = document.createElement("button");
+  deleteTodoButton.classList.add("delete-todo");
+  deleteTodoButton.type = "button";
+  deleteTodoButton.textContent = "X";
+  setupDeleteTodoButton(deleteTodoButton, todo, todosDiv, project);
+  todoDiv.appendChild(deleteTodoButton);
+
+  const todoTitleHeader = document.createElement("h3");
+  todoTitleHeader.classList.add("todo-title");
+  todoTitleHeader.contentEditable = "true";
+  todoTitleHeader.textContent = todo.title;
+  todoTitleHeader.addEventListener("input", () => {
+    todo.title = todoTitleHeader.textContent;
+  });
+  todoDiv.appendChild(todoTitleHeader);
+
+  const todoDueDateParagraph = document.createElement("p");
+  todoDueDateParagraph.classList.add("due-date");
+  todoDueDateParagraph.textContent = format(todo.dueDate, "yyyy-MM-dd");
+  todoDiv.appendChild(todoDueDateParagraph);
+
+  todosDiv.appendChild(todoDiv);
+}
+
+function setupExpandDescriptionButton(expandDescriptionButton, todo, todoDiv) {
+  expandDescriptionButton.addEventListener("click", () => {
+    const descriptionParagraph = document.createElement("p");
+    descriptionParagraph.classList.add("description");
+    descriptionParagraph.contentEditable = "true";
+
+    descriptionParagraph.addEventListener("input", () => {
+      todo.description = descriptionParagraph.innerText;
+    });
+    descriptionParagraph.textContent = todo.description;
+
+    const shrinkDescriptionButton = document.createElement("button");
+    shrinkDescriptionButton.classList.add("shrink-description");
+    shrinkDescriptionButton.type = "button";
+    shrinkDescriptionButton.style = `background-image: url(${upChevronSvg})`;
+    expandDescriptionButton.replaceWith(shrinkDescriptionButton);
+    setupShrinkDescriptionButton(
+      expandDescriptionButton,
+      shrinkDescriptionButton,
+      descriptionParagraph,
+      todoDiv
+    );
+
+    todoDiv.appendChild(descriptionParagraph);
+  });
+}
+
+function setupShrinkDescriptionButton(
+  expandDescriptionButton,
+  shrinkDescriptionButton,
+  descriptionParagraph,
+  todoDiv
+) {
+  shrinkDescriptionButton.addEventListener("click", () => {
+    shrinkDescriptionButton.replaceWith(expandDescriptionButton);
+
+    todoDiv.removeChild(descriptionParagraph);
+  });
+}
+
+function setupDeleteTodoButton(deleteTodoButton, todo, todosDiv, project) {
+  deleteTodoButton.addEventListener("click", () => {
+    ProjectManager.removeTodoFromProject(project, todo);
+    clearTodoDisplay(todosDiv);
+    updateTodosDisplay(todosDiv);
+  });
+}
+
+export function setupCreateTodoButton(createTodoButton, todosDiv) {
+  createTodoButton.addEventListener("click", () => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const currentDay = new Date().getDate();
+    const newTodo = new Todo(
+      "Title",
+      "Description",
+      new Date(currentYear, currentMonth, currentDay),
+      "low",
+      false
+    );
+    ProjectManager.addTodoToProject(
+      ProjectManager.currentActiveProject,
+      newTodo
+    );
+    clearTodoDisplay(todosDiv);
+    updateTodosDisplay(todosDiv);
   });
 }

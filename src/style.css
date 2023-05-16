@@ -1,112 +1,218 @@
 :root {
-    --sidebar-background-color: lightgray;
-    --delete-button-background-color: red;
-    --delete-button-color: white;
-    --active-project-color: green;
+  --sidebar-background-color: lightgray;
+  --delete-button-background-color: red;
+  --delete-button-color: white;
+  --add-project-button-background-color: var(
+    --create-todo-button-background-color
+  );
+  --add-project-button-color: var(--delete-button-color);
+  --active-project-color: green;
+  --todo-background-color: #fee360;
+  --create-todo-button-background-color: blue;
+  --create-todo-button-color: var(--delete-button-color);
+  --button-border-radius: 6px;
 }
 
-body, .project-main-title, .todos-title, .project-title {
-    margin: 0;
+html,
+body,
+#content {
+  height: 100%;
+}
+
+body,
+.projects-title,
+.todos-title,
+.project-title,
+.expand-description,
+.delete-todo,
+.description {
+  margin: 0;
 }
 
 #content {
-    display: flex;
+  display: flex;
 }
 
 .sidebar {
-    background-color: var(--sidebar-background-color);
-    width: 20vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  background-color: var(--sidebar-background-color);
+  width: 20vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .main {
-    width: 80vw;
-    height: 100vh;
+  width: 80vw;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.project-main-title, .todos-title {
-    text-align: center;
-    padding: 2vw 0 0 0;
+.projects-title,
+.todos-title {
+  text-align: center;
+  padding: 2vw 0 0 0;
 }
 
-.project-title-input, .project-input-submit {
-    height: 3vh;
-    margin-bottom: 2vh;
-    line-height: 1;
+.project-title-input,
+.project-input-submit {
+  height: 3vh;
+  margin-bottom: 2vh;
+  line-height: 1;
 }
 
 .project-title-input {
-    width: 15vw;
+  width: 15vw;
 }
 
 .project-input-submit {
-    justify-self: center;
-    align-self: center;
-    background-color: blue;
-    color: white;
+  justify-self: center;
+  align-self: center;
+  background-color: var(--add-project-button-background-color);
+  color: var(--add-project-button-color);
 }
 
 .new-project {
-    align-self: center;
-    justify-self: center;
-    display: flex;
-    column-gap: 1vw;
+  align-self: center;
+  justify-self: center;
+  display: flex;
+  column-gap: 1vw;
 }
 
 .create-project {
-    background-color: gray;
-    font-size: 1rem;
-    border-radius: 6px;
+  background-color: gray;
+  font-size: 1rem;
+  border-radius: var(--button-border-radius);
 }
 
-.new-project, .create-project {
-    height: 6vh;
+.new-project,
+.create-project {
+  height: 6vh;
 }
 
 .notes,
 .green-notes {
-    width: 4vw;
-    height: 4vh;
-    place-self: center;
+  width: 4vw;
+  height: 4vh;
+  place-self: center;
 }
 
 .project {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: 1fr 3fr;
-    height: 4vh;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr 3fr;
+  height: 4vh;
 }
 
 .project-title {
-    justify-self: start;
-    align-self: center;
-    border: none;
-    background-color: var(--sidebar-background-color);
-    font-size: 1rem;
-    font-weight: bold;
+  justify-self: start;
+  align-self: center;
+  border: none;
+  background-color: var(--sidebar-background-color);
+  font-size: 1rem;
+  font-weight: bold;
 }
 
 .projects {
-    display: flex;
-    flex-direction: column;
-    row-gap: 2vh;
-    height: 70vh;
+  display: flex;
+  flex-direction: column;
+  row-gap: 2vh;
+  height: 70vh;
 }
 
-.project-delete {
-    background-color: var(--delete-button-background-color);
-    color: var(--delete-button-color);
-    font-weight: bold;
-    margin-right: 1vw;
+.project-delete,
+.delete-todo {
+  background-color: var(--delete-button-background-color);
+  color: var(--delete-button-color);
+  font-weight: bold;
+  margin-right: 1vw;
 }
 
 .default {
-    margin-right: 3vw;
+  margin-right: 3vw;
 }
 
 .active .project-title {
-    color: var(--active-project-color);
+  color: var(--active-project-color);
+}
+
+.todos {
+  display: flex;
+  flex-direction: column;
+  height: 82.5vh;
+  overflow: auto;
+}
+
+.todo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background-color: var(--todo-background-color);
+  margin: 2vh 4vw 2vh 4vw;
+}
+
+.todo-title,
+.due-date {
+  position: relative;
+}
+
+.todo-title {
+  bottom: 4vh;
+}
+
+.due-date {
+  bottom: 3.5vh;
+}
+
+.todo-title,
+.due-date,
+.description {
+  text-align: center;
+}
+
+.todo-title,
+.description {
+  text-align: center;
+  white-space: pre-wrap;
+}
+
+.todo-title {
+  max-height: 6vh;
+  overflow: auto;
+}
+
+.delete-todo {
+  position: relative;
+  width: 2.5vw;
+  height: 4vh;
+  left: 33vw;
+}
+
+.expand-description,
+.shrink-description {
+  position: relative;
+  width: 1.675vw;
+  height: 3vh;
+  border: none;
+  background-color: var(--todo-background-color);
+}
+
+.description {
+  position: relative;
+  bottom: 4vh;
+  text-align: center;
+  overflow: auto;
+  max-height: 25vh;
+}
+
+.create-todo {
+  position: absolute;
+  left: 87.5%;
+  top: 92.5%;
+  width: 10vw;
+  height: 5vh;
+  font-weight: bold;
+  background-color: var(--create-todo-button-background-color);
+  color: var(--create-todo-button-color);
+  border-radius: var(--button-border-radius);
 }

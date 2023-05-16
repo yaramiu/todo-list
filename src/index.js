@@ -1,6 +1,8 @@
 import {
+  updateTodosDisplay,
   updateProjectsDisplay,
   setupCreateProjectButton,
+  setupCreateTodoButton,
 } from "./dom-manipulation.js";
 import { ProjectManager } from "./project.js";
 import "./style.css";
@@ -12,7 +14,7 @@ function initializePage() {
   sidebarDiv.classList.add("sidebar");
 
   const projectsHeader = document.createElement("h1");
-  projectsHeader.classList.add("project-main-title");
+  projectsHeader.classList.add("projects-title");
   projectsHeader.textContent = "Projects";
   sidebarDiv.appendChild(projectsHeader);
 
@@ -35,7 +37,15 @@ function initializePage() {
 
   const todosDiv = document.createElement("div");
   todosDiv.classList.add("todos");
+  updateTodosDisplay(todosDiv);
   mainDiv.appendChild(todosDiv);
+
+  const createTodoButton = document.createElement("button");
+  createTodoButton.classList.add("create-todo");
+  createTodoButton.type = "button";
+  createTodoButton.textContent = "Create Todo";
+  setupCreateTodoButton(createTodoButton, todosDiv);
+  mainDiv.appendChild(createTodoButton);
 
   contentDiv.appendChild(mainDiv);
 }

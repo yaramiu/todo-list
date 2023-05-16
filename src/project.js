@@ -8,6 +8,11 @@ class Project {
   addTodo(todo) {
     this.todos.push(todo);
   }
+
+  removeTodo(todo) {
+    const todoIndex = this.todos.indexOf(todo);
+    this.todos.splice(todoIndex, 1);
+  }
 }
 
 export class ProjectManager {
@@ -29,10 +34,12 @@ export class ProjectManager {
   }
 
   static addTodoToProject(project, todo) {
-    for (let i = 0; i < this.projects.length; i++) {
-      if (this.projects[i] === project) {
-        this.projects[i].addTodo(todo);
-      }
-    }
+    const projectIndex = this.projects.indexOf(project);
+    this.projects[projectIndex].addTodo(todo);
+  }
+
+  static removeTodoFromProject(project, todo) {
+    const projectIndex = this.projects.indexOf(project);
+    this.projects[projectIndex].removeTodo(todo);
   }
 }
