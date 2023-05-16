@@ -150,6 +150,8 @@ function setupProjectDeleteButton(projectDeleteButton, project, projectsDiv) {
     ProjectManager.projectActivity.delete(project);
     clearProjectsDisplay(projectsDiv);
     updateProjectsDisplay(projectsDiv);
+    DomStorage.projectToTodosDivMap.delete(project);
+    changeActiveProjectsTodosDisplay();
   });
 }
 
@@ -165,6 +167,8 @@ function setupProjectTitleButton(
 
     makeNoteImageActive(projectDiv);
     makeOtherNoteImagesInactive(projectDiv.firstChild, projectsDiv);
+
+    changeActiveProjectsTodosDisplay();
   });
 }
 
@@ -214,9 +218,11 @@ export function updateTodosDisplay(todosDiv) {
     const currentTodo = currentProject.todos[i];
     displayTodo(currentTodo, todosDiv, currentProject);
   }
+
+  DomStorage.projectToTodosDivMap.set(currentProject, todosDiv);
 }
 
-function clearTodoDisplay(todosDiv) {
+function clearTodosDisplay(todosDiv) {
   while (todosDiv.lastChild) {
     todosDiv.removeChild(todosDiv.lastChild);
   }
@@ -317,7 +323,7 @@ function setupShrinkTodoButton(
 function setupDeleteTodoButton(deleteTodoButton, todo, todosDiv, project) {
   deleteTodoButton.addEventListener("click", () => {
     ProjectManager.removeTodoFromProject(project, todo);
-    clearTodoDisplay(todosDiv);
+    clearTodosDisplay(todosDiv);
     updateTodosDisplay(todosDiv);
   });
 }
@@ -338,7 +344,7 @@ export function setupCreateTodoButton(createTodoButton, todosDiv) {
       ProjectManager.currentActiveProject,
       newTodo
     );
-    clearTodoDisplay(todosDiv);
+    clearTodosDisplay(todosDiv);
     updateTodosDisplay(todosDiv);
   });
 }
@@ -419,4 +425,23 @@ function stylePriorityOnTodo(todo, todoDiv) {
   } else if (todo.priority === "high") {
     todoDiv.classList.add("high-priority");
   }
+}
+
+function changeActiveProjectsTodosDisplay() {
+  let todosDiv = DomStorage.projectToTodosDivMap.get(
+    ProjectManager.currentActiveProject
+  );
+  if (todosDiv === undefined) {
+    todosDiv = DomStorage.projectToTodosDivMap.get(
+      ProjectManager.defaultProject
+    );
+    clearTodosDisplay(todosDiv);
+    return;
+  }
+  clearTodosDisplay(todosDiv);
+  updateTodosDisplay(todosDiv);
+}
+
+class DomStorage {
+  static projectToTodosDivMap = new Map();
 }

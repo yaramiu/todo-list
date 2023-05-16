@@ -19,10 +19,15 @@ export class ProjectManager {
   static projects = [];
   static currentActiveProject;
   static projectActivity = new Map();
+  static defaultProject;
 
   static createNewProject(title, isDefault) {
     let project = new Project(title, isDefault);
     ProjectManager.projects.push(project);
+
+    if (isDefault) {
+      this.defaultProject = project;
+    }
   }
 
   static removeProject(project) {
