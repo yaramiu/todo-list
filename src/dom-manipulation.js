@@ -1,5 +1,5 @@
 import { ProjectManager } from "./project";
-import { hitProjectLimit, isInputValid } from "./validation";
+import { isInputValid } from "./validation";
 import { Todo } from "./todo";
 import format from "date-fns/format";
 import notesSvg from "./images/note-multiple.svg";
@@ -63,9 +63,6 @@ function initializeProjectInputSubmitButton(
   sidebarDiv
 ) {
   projectInputSubmitButton.addEventListener("click", () => {
-    if (hitProjectLimit()) {
-      return;
-    }
     let projectTitleInputStr = document.getElementById("projectTitle").value;
     if (!isInputValid(projectTitleInputStr)) {
       return;

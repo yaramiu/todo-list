@@ -116,6 +116,8 @@ body,
   background-color: var(--sidebar-background-color);
   font-size: 1rem;
   font-weight: bold;
+  overflow: auto;
+  height: 5vh;
 }
 
 .projects {
@@ -123,6 +125,7 @@ body,
   flex-direction: column;
   row-gap: 2vh;
   height: 70vh;
+  overflow: auto;
 }
 
 .project-delete,
