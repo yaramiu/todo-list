@@ -265,10 +265,35 @@ function displayTodo(todo, todosDiv) {
   });
   todoDiv.appendChild(todoTitleHeader);
 
+  const todoDueDateDiv = document.createElement("div");
+  todoDueDateDiv.classList.add("due-date");
+
   const todoDueDateParagraph = document.createElement("p");
-  todoDueDateParagraph.classList.add("due-date");
+  todoDueDateParagraph.classList.add("due-date-text");
   todoDueDateParagraph.textContent = format(todo.dueDate, "yyyy-MM-dd");
-  todoDiv.appendChild(todoDueDateParagraph);
+  todoDueDateDiv.appendChild(todoDueDateParagraph);
+
+  const changeDueDateInput = document.createElement("input");
+  changeDueDateInput.classList.add("change-due-date");
+  changeDueDateInput.type = "date";
+  changeDueDateInput.addEventListener("change", (event) => {
+    const dateValues = String(event.target.value).split("-");
+    const changedDate = new Date(
+      dateValues[0],
+      dateValues[1] - 1,
+      dateValues[2]
+    );
+    todo.dueDate = changedDate;
+    const changedTodoDueDateParagraph = todoDueDateParagraph;
+    changedTodoDueDateParagraph.textContent = event.target.value;
+    todoDueDateDiv.replaceChild(
+      changedTodoDueDateParagraph,
+      todoDueDateParagraph
+    );
+  });
+  todoDueDateDiv.appendChild(changeDueDateInput);
+
+  todoDiv.appendChild(todoDueDateDiv);
 
   todosDiv.appendChild(todoDiv);
 }
@@ -362,7 +387,7 @@ export function setupCreateTodoButton(createTodoButton, todosDiv) {
 
 function setupChangePriorityButton(changePriorityButton, todo, todoDiv) {
   changePriorityButton.addEventListener("click", () => {
-    todoDiv.removeChild(todoDiv.lastChild);
+    todoDiv.removeChild(document.querySelector(".change-priority"));
 
     const prioritiesDiv = document.createElement("div");
     prioritiesDiv.classList.add("priorities");

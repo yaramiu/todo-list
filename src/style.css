@@ -155,21 +155,12 @@ body,
   margin: 2vh 4vw 2vh 4vw;
 }
 
-.todo-title,
-.due-date {
-  position: relative;
-}
-
 .todo-title {
+  position: relative;
   bottom: 4vh;
 }
 
-.due-date {
-  bottom: 3.5vh;
-}
-
 .todo-title,
-.due-date,
 .description {
   text-align: center;
 }
@@ -260,4 +251,14 @@ button.high-priority {
 
 .high-priority {
   background-color: var(--high-priority-button-background-color);
+}
+
+.due-date {
+  display: flex;
+  column-gap: 1vw;
+  place-items: center;
+  height: 4vh;
+  position: relative;
+  left: 12vw;
+  bottom: 2vh;
 }
