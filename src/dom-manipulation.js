@@ -367,8 +367,7 @@ export function setupCreateTodoButton(createTodoButton, todosDiv) {
       "Title",
       "Description",
       new Date(currentYear, currentMonth, currentDay),
-      "low",
-      false
+      "low"
     );
     ProjectManager.addTodoToProject(
       ProjectManager.currentActiveProject,
