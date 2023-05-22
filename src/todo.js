@@ -4,9 +4,6 @@ export class Todo {
     this.description = description;
     this.dueDate = dueDate;
     this.priority = priority;
-  }
-
-  changePriority(newPriority) {
-    this.priority = newPriority;
+    this.objectId;
   }
 }

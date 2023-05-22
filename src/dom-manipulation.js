@@ -1,6 +1,7 @@
 import { ProjectManager } from "./project";
 import { isInputValid } from "./validation";
 import { Todo } from "./todo";
+import { saveProject, saveMap, initializeProjectMethods } from "./storage";
 import format from "date-fns/format";
 import notesSvg from "./images/note-multiple.svg";
 import greenNotesSvg from "./images/note-multiple-green.svg";
@@ -67,9 +68,22 @@ function initializeProjectInputSubmitButton(
     if (!isInputValid(projectTitleInputStr)) {
       return;
     }
-    ProjectManager.createNewProject(projectTitleInputStr, false);
+    const project = ProjectManager.createNewProject(
+      projectTitleInputStr,
+      false
+    );
+    saveProject();
+    initializeProjectMethods(project);
     clearProjectsDisplay(projectsDiv);
     updateProjectsDisplay(projectsDiv);
+    let todosDiv = DomStorage.projectToTodosDivMap.get(project.title);
+    if (todosDiv === undefined) {
+      todosDiv = document.querySelector(".todos");
+      DomStorage.projectToTodosDivMap.set(projectTitleInputStr, todosDiv);
+    } else {
+      DomStorage.projectToTodosDivMap.set(projectTitleInputStr, todosDiv);
+    }
+    saveMap();
     sidebarDiv.childNodes.forEach((node) => {
       if (Array.from(node.classList).includes("new-project")) {
         sidebarDiv.removeChild(node);
@@ -143,19 +157,19 @@ function displayProject(project, projectsDiv) {
 
 function setupProjectDeleteButton(projectDeleteButton, project, projectsDiv) {
   projectDeleteButton.addEventListener("click", () => {
+    project.todos.forEach((todo) => {
+      ProjectManager.removeTodoFromProjects(todo);
+    });
+
     ProjectManager.removeProject(project);
+    saveProject();
     ProjectManager.projectActivity.delete(project);
     clearProjectsDisplay(projectsDiv);
     updateProjectsDisplay(projectsDiv);
 
-    const TodosDiv = DomStorage.projectToTodosDivMap.get(project);
-    if (TodosDiv !== undefined) {
-      TodosDiv.childNodes.forEach((node) => {
-        ProjectManager.defaultProject.removeTodo(node);
-      });
-    }
+    DomStorage.projectToTodosDivMap.delete(project.title);
+    saveMap();
 
-    DomStorage.projectToTodosDivMap.delete(project);
     changeActiveProjectsTodosDisplay();
   });
 }
@@ -224,10 +238,11 @@ export function updateTodosDisplay(todosDiv) {
     displayTodo(currentTodo, todosDiv);
   }
 
-  DomStorage.projectToTodosDivMap.set(currentProject, todosDiv);
+  DomStorage.projectToTodosDivMap.set(currentProject.title, todosDiv);
+  saveMap();
 }
 
-function clearTodosDisplay(todosDiv) {
+export function clearTodosDisplay(todosDiv) {
   while (todosDiv.lastChild) {
     todosDiv.removeChild(todosDiv.lastChild);
   }
@@ -259,6 +274,8 @@ function displayTodo(todo, todosDiv) {
   todoTitleHeader.textContent = todo.title;
   todoTitleHeader.addEventListener("input", () => {
     todo.title = todoTitleHeader.textContent;
+    ProjectManager.syncTodoContents(todo, "title", todoTitleHeader.textContent);
+    saveProject();
   });
   todoDiv.appendChild(todoTitleHeader);
 
@@ -267,7 +284,7 @@ function displayTodo(todo, todosDiv) {
 
   const todoDueDateParagraph = document.createElement("p");
   todoDueDateParagraph.classList.add("due-date-text");
-  todoDueDateParagraph.textContent = format(todo.dueDate, "yyyy-MM-dd");
+  todoDueDateParagraph.textContent = todo.dueDate;
   todoDueDateDiv.appendChild(todoDueDateParagraph);
 
   const changeDueDateInput = document.createElement("input");
@@ -280,7 +297,9 @@ function displayTodo(todo, todosDiv) {
       dateValues[1] - 1,
       dateValues[2]
     );
-    todo.dueDate = changedDate;
+    todo.dueDate = format(changedDate, "yyyy-MM-dd");
+    ProjectManager.syncTodoContents(todo, "due-date", todo.dueDate);
+    saveProject();
     const changedTodoDueDateParagraph = todoDueDateParagraph;
     changedTodoDueDateParagraph.textContent = event.target.value;
     todoDueDateDiv.replaceChild(
@@ -303,6 +322,8 @@ function setupExpandTodoButton(expandTodoButton, todo, todoDiv) {
 
     descriptionParagraph.addEventListener("input", () => {
       todo.description = descriptionParagraph.innerText;
+      ProjectManager.syncTodoContents(todo, "description", todo.description);
+      saveProject();
     });
     descriptionParagraph.textContent = todo.description;
 
@@ -353,6 +374,7 @@ function setupShrinkTodoButton(
 function setupDeleteTodoButton(deleteTodoButton, todo, todosDiv) {
   deleteTodoButton.addEventListener("click", () => {
     ProjectManager.removeTodoFromProjects(todo);
+    saveProject();
     clearTodosDisplay(todosDiv);
     updateTodosDisplay(todosDiv);
   });
@@ -363,18 +385,18 @@ export function setupCreateTodoButton(createTodoButton, todosDiv) {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
     const currentDay = new Date().getDate();
-    const newTodo = new Todo(
-      "Title",
-      "Description",
-      new Date(currentYear, currentMonth, currentDay),
-      "low"
-    );
+    let dueDate = new Date(currentYear, currentMonth, currentDay);
+    dueDate = format(dueDate, "yyyy-MM-dd");
+    const newTodo = new Todo("Title", "Description", dueDate, "low");
+    newTodo.objectId = getObjectId(newTodo);
     ProjectManager.addTodoToProject(
       ProjectManager.currentActiveProject,
       newTodo
     );
+    saveProject();
     if (!ProjectManager.currentActiveProject.isDefault) {
       ProjectManager.addTodoToProject(ProjectManager.defaultProject, newTodo);
+      saveProject();
     }
     clearTodosDisplay(todosDiv);
     updateTodosDisplay(todosDiv);
@@ -421,7 +443,9 @@ function setupPriorityButtons(todo, todoDiv, prioritiesDiv) {
             ProjectManager.currentActiveProject.todos.indexOf(todo)
           ];
         todoToChangePriority.priority = "low";
+        ProjectManager.syncTodoContents(todo, "priority", todo.priority);
         stylePriorityOnTodo(todo, todoDiv);
+        saveProject();
       });
     } else if (Array.from(node.classList).includes("medium-priority")) {
       node.addEventListener("click", () => {
@@ -430,7 +454,9 @@ function setupPriorityButtons(todo, todoDiv, prioritiesDiv) {
             ProjectManager.currentActiveProject.todos.indexOf(todo)
           ];
         todoToChangePriority.priority = "medium";
+        ProjectManager.syncTodoContents(todo, "priority", todo.priority);
         stylePriorityOnTodo(todo, todoDiv);
+        saveProject();
       });
     } else if (Array.from(node.classList).includes("high-priority")) {
       node.addEventListener("click", () => {
@@ -439,7 +465,9 @@ function setupPriorityButtons(todo, todoDiv, prioritiesDiv) {
             ProjectManager.currentActiveProject.todos.indexOf(todo)
           ];
         todoToChangePriority.priority = "high";
+        ProjectManager.syncTodoContents(todo, "priority", todo.priority);
         stylePriorityOnTodo(todo, todoDiv);
+        saveProject();
       });
     }
   });
@@ -461,19 +489,26 @@ function stylePriorityOnTodo(todo, todoDiv) {
 
 function changeActiveProjectsTodosDisplay() {
   let todosDiv = DomStorage.projectToTodosDivMap.get(
-    ProjectManager.currentActiveProject
+    ProjectManager.currentActiveProject.title
   );
-  if (todosDiv === undefined) {
-    todosDiv = DomStorage.projectToTodosDivMap.get(
-      ProjectManager.defaultProject
-    );
-    clearTodosDisplay(todosDiv);
-    return;
-  }
   clearTodosDisplay(todosDiv);
   updateTodosDisplay(todosDiv);
 }
 
-class DomStorage {
+let count = 1;
+const idMap = new WeakMap();
+function getObjectId(object) {
+  const objectId = idMap.get(object);
+  if (objectId === undefined) {
+    count += 1;
+    idMap.set(object, count);
+
+    return count;
+  }
+
+  return objectId;
+}
+
+export class DomStorage {
   static projectToTodosDivMap = new Map();
 }

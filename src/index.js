@@ -3,8 +3,15 @@ import {
   updateProjectsDisplay,
   setupCreateProjectButton,
   setupCreateTodoButton,
+  clearTodosDisplay,
+  DomStorage,
 } from "./dom-manipulation.js";
 import { ProjectManager } from "./project.js";
+import {
+  saveProject,
+  getLocalStorageData,
+  initializeProjectMethods,
+} from "./storage.js";
 import "./style.css";
 
 function initializePage() {
@@ -20,7 +27,17 @@ function initializePage() {
 
   const projectsDiv = document.createElement("div");
   projectsDiv.classList.add("projects");
-  ProjectManager.createNewProject("Default", true);
+
+  let project;
+  if (localStorage.length === 0) {
+    project = ProjectManager.createNewProject("Default", true);
+    saveProject();
+    initializeProjectMethods(project);
+  } else {
+    getLocalStorageData();
+    ProjectManager.defaultProject = ProjectManager.projects[0];
+  }
+
   updateProjectsDisplay(projectsDiv);
   sidebarDiv.appendChild(projectsDiv);
 
@@ -35,9 +52,16 @@ function initializePage() {
   todosHeader.textContent = "Todos";
   mainDiv.appendChild(todosHeader);
 
-  const todosDiv = document.createElement("div");
-  todosDiv.classList.add("todos");
-  updateTodosDisplay(todosDiv);
+  let todosDiv = DomStorage.projectToTodosDivMap.get(
+    ProjectManager.defaultProject.title
+  );
+  if (todosDiv === undefined) {
+    todosDiv = document.createElement("div");
+    todosDiv.classList.add("todos");
+  } else {
+    clearTodosDisplay(todosDiv);
+  }
+  updateTodosDisplay(todosDiv, true);
   mainDiv.appendChild(todosDiv);
 
   const createTodoButton = document.createElement("button");
